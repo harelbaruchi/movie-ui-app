@@ -8,10 +8,8 @@
       </div>
 
   </div>
-  <v-btn
-      elevation="2"
-      to="/"
-  ></v-btn>
+
+ <v-input type="button" onclick="history.go(-1)">Back to search</v-input>
 </template>
 
 <script>
