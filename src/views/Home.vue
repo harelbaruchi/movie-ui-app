@@ -12,7 +12,7 @@
 
     <form @submit.prevent="searchMovies()" class="search-box">
 <!--      <input type="button" value="get year" onclick="filterByYear()">-->
-      <v-btn @click="filterByYear()">hello world</v-btn>
+      <v-btn @click="filterByYear()" class="search-box">pick your year</v-btn>
       <select v-model="year">
         <option>(1979)</option>
         <option>(1980)</option>

@@ -1,10 +1,10 @@
 <template>
   <div class="feature-card">
 
-      <img :src="movie.Poster" alt="movie Poster " class="featured-img" />
+      <img :src="movie.image" alt="movie Poster " class="featured-img" />
       <div class="detail">
-        <h3>{{movie.Title}}</h3>
-        <p>{{movie.Plot}}</p>
+        <h3>{{movie.title}}</h3>
+        <p>{{movie.description}}</p>
       </div>
 
   </div>
