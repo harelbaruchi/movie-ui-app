@@ -1,10 +1,10 @@
 <template>
   <div class="feature-card">
 
-      <img :src="movie.image" alt="movie Poster " class="featured-img" />
+      <img :src="'https://image.tmdb.org/t/p/original/'+movie.poster_path" alt="movie Poster " class="featured-img" />
       <div class="detail">
         <h3>{{movie.title}}</h3>
-        <p>{{movie.description}}</p>
+        <p>{{movie.overview}}</p>
       </div>
 
   </div>
@@ -25,7 +25,8 @@ export default {
     const route= useRoute();
 
     onBeforeMount(()=>{
-      fetch(`http://www.omdbapi.com/?apikey=${env.apikey}&i=${route.params.id}&plot=full`)
+
+      fetch(`https://api.themoviedb.org/3/movie/${route.params.id}?api_key=${env.apikey}&language=en-US`)
       .then(response=>response.json())
       .then(data=>{
         movie.value= data;

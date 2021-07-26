@@ -1,7 +1,13 @@
 <template>
   <header>
     <router-link to="/">
-      <h1><span>your</span>Movies</h1>
+      <div class="text-h1 text-center text-bold" >
+        <span>
+          your movies
+        </span>
+
+      </div>
+
 
     </router-link>
   </header>

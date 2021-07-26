@@ -1,80 +1,55 @@
 <template>
   <div class="home">
-    <!--   <div class="feature-card">-->
-    <!--     <router-link to="/movie/tt0409591">-->
-    <!--       <img src="https://static.wikia.nocookie.net/naruto/images/d/dd/Naruto_Uzumaki%21%21.png" alt="Naruto Poster " class="featured-img" />-->
-    <!--       <div class="detail">-->
-    <!--         <h3>Naruto</h3>-->
-    <!--         <p>Naruto Uzumaki, a mischievous adolescent ninja, struggles as he searches for recognition and dreams of becoming the Hokage, the village's leader and strongest ninja.</p>-->
-    <!--       </div>-->
-    <!--     </router-link>-->
-    <!--   </div>-->
 
     <form @submit.prevent="searchMovies()" class="search-box">
 <!--      <input type="button" value="get year" onclick="filterByYear()">-->
-      <v-btn @click="filterByYear()" class="search-box">pick your year</v-btn>
-      <select v-model="year">
-        <option>(1979)</option>
-        <option>(1980)</option>
-        <option>(1981)</option>
-        <option>(1982)</option>
-        <option>(1983)</option>
-        <option>(1984)</option>
-        <option>(1985)</option>
-        <option>(1986)</option>
-        <option>(1987)</option>
-        <option>(1988)</option>
-        <option>(1989)</option>
-        <option>(1990)</option>
-        <option>(1991)</option>
-        <option>(1992)</option>
-        <option>(1993)</option>
-        <option>(1994)</option>
-        <option>(1995)</option>
-        <option>(1996)</option>
-        <option>(1997)</option>
-        <option>(1998)</option>
-        <option>(1999)</option>
-        <option>(2000)</option>
-        <option>(2001)</option>
-        <option>(2002)</option>
-        <option>(2003)</option>
-        <option>(2004)</option>
-        <option>(2005)</option>
-        <option>(2006)</option>
-        <option>(2007)</option>
-        <option>(2008)</option>
-        <option>(2009)</option>
-        <option>(2010)</option>
-        <option>(2011)</option>
-        <option>(2012)</option>
-        <option>(2013)</option>
-        <option>(2014)</option>
-        <option>(2015)</option>
-        <option>(2016)</option>
-        <option>(2017)</option>
-        <option>(2018)</option>
-        <option>(2019)</option>
-        <option>(2020)</option>
+<!--      <v-btn @onClick ="filterByYear()"-->
+<!--             elevation="2"-->
+<!--             outlined-->
+<!--      >pick your year</v-btn>-->
+
+       <div class="row">
+
+         <div class="col-3 col-md-4">
+           <q-select outlined v-model="searchOption" :options="searchOptions" @change="loadYears()" label="find movie by" />
+         </div>
+         <div class="col-3 col-md-4">
+           <q-input filled type="text" v-model="search" placeholder="search term" />
+<!--           <input type="text" placeholder="look for a title" v-model="search">-->
+
+         </div>
+         <div class="col-3 col-md-4" v-if="this.searchOption=='movie'">
+
+           <q-select  v-model="yearOption" :options="yearOptions" id="selectYear" label="pick Year" >
 
 
-      </select>
+           </q-select>
 
 
-      <input type="text" placeholder="look for a title" v-model="search">
-      <input type="submit" value="search"/>
+         </div>
+         <div class="col-3 col-md-4">
+
+         </div>
+
+
+
+       </div>
+
+
+      <q-input type="submit" value="search"/>
     </form>
     <div class="movies-list">
       <div class="movie" v-for="movie in movies" :key="movie.id">
 
         <router-link :to="'/movie/'+ movie.id" class="movie-link">
           <div class="movie-img">
-            <img :src="movie.image" alt="movie poster"/>
+
+            <img :src="'https://image.tmdb.org/t/p/original/'+movie.poster_path" alt="movie poster"/>
             <div class="type">{{ movie.type }}</div>
 
           </div>
           <div class="detail">
-            <p class="y">{{ movie.description }}</p>
+            <p class="y">{{ movie.release_date }}</p>
             <h3>{{ movie.title }}</h3>
           </div>
 
@@ -95,16 +70,27 @@ const axios = require('axios');
 import env from '/src/env.js'
 
 export default {
+
   data() {
     return {
-      year: '',
+      searchOption: '',
+      yearOption: '',
+      option: '',
+      posterUrl: '',
+      movieId: [],
+      moviesFiltered: [],
       movies: [],
       movie: {},
-      search: ''
+      search: '',
+      searchOptions: ['actor', 'director', 'movie'
+      ],
+      director: ''
+
     }
   },
   methods: {
-    filterByYear() {
+
+filterByYear() {
       const filteredArr = [];
       this.movies.forEach(movie => {
         if (movie.description.includes(this.year)) {
@@ -115,55 +101,62 @@ export default {
       console.log('morty you little piece of shit')
     },
 
-    searchMovies(){
-      if(this.search !== ''){
-        axios.get(`https://imdb-api.com/en/API/Search/${env.apikey}/${this.search}`).then(res => {
-          this.movies = res.data.results;
-          this.search = '';
-          console.log(this.movies)
-        })
+    searchMovies() {
+      if (this.search !== '') {
+        if (this.searchOption == 'director') {//if the user chose director
+
+          axios.get(`https://api.themoviedb.org/3/search/person?api_key=${env.apikey}&language=en-US&page=1&include_adult=false&query=${this.search}`)
+              .then(res => {
+                this.moviesFiltered = res.data.results.filter(x => x.known_for_department = "directing");
+                this.search = '';
+                this.movies = this.moviesFiltered[0].known_for;
+
+
+              })
+        } else if (this.searchOption == 'actor') { //if the user chose actor
+          axios.get(`https://api.themoviedb.org/3/search/person?api_key=${env.apikey}&language=en-US&page=1&include_adult=false&query=${this.search}`)
+              .then(res => {
+                this.moviesFiltered = res.data.results.filter(x => x.known_for_department = "acting");
+                this.search = '';
+                this.movies = this.moviesFiltered[0].known_for;
+              })
+        } else if (this.searchOption == 'movie') {// if the user chose Movie search
+
+          axios.get(`https://api.themoviedb.org/3/search/movie?api_key=${env.apikey}&language=en-US&page=1&include_adult=false&query=${this.search}`)
+              .then(res => {
+                if(this.yearOption==''){
+                  this.search='';
+                  this.movies = res.data.results;
+                }else{
+                  this.search='';
+                  console.log(res.data.results);
+                  this.movies=res.data.results.filter(x=>x.release_date.includes(this.yearOption))
+                }
+
+              })
+
+
+        }
       }
+
+
+    }
+  },
+  computed:{
+    urlImage :()=>{
+      return 'https://image.tmdb.org/t/p/original/'+this.posterUrl
+    },
+    yearOptions:()=> {
+      let years=[];
+      for(let i=1900; i<2023; i++){
+        years.push(i);
+      }
+      return years
     }
 
-    // SearchMovies() {
-    //   if (search.value != "") {
-    //     axios.get(`https://imdb-api.com/en/API/Search/${env.apikey}/${search.value}`)
-    //         .then(response => {
-    //           let mov = response.data.results;
-    //
-    //           movies.value = mov;
-    //           search.value = "";
-    //           console.log(movies)
-    //         });
-    //   }
-    // },
-
-
-    // setup() {
-    //   let year = ref("");
-    //   const search = ref("");
-    //   let movies = ref([]);
-    //  axios.get(`https://imdb-api.com/en/API/Search/${env.apikey}/${search.value}`)
-    // .then(res =>res.json())
-    // .then(data=>{
-    //   console.log(res.data);
-    //
-    //     movies.value= res.filter(x=>x.Year==data.year);
-    //     search.value="";
-    // });
-    //     }
-    //
-    //   }
-    //   // return {
-    //   //   search,
-    //   //   movies,
-    //   //   SearchMovies
-    //   //
-    //   // }
-    // }
   }
-}
 
+}
 </script>
 <style lang="scss">
 .home {
@@ -200,11 +193,8 @@ export default {
   }
 
   .search-box {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    padding: 16px;
+
+
 
     input {
       display: block;
